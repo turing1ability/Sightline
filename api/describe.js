@@ -32,10 +32,15 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Use POST.' })
   }
 
-  const apiKey = process.env.GEMINI_API_KEY
-  if (!apiKey) {
-    return res.status(500).json({ error: 'Server is missing GEMINI_API_KEY.' })
-  }
+  const apiKeys = [
+  process.env.GEMINI_API_KEY,
+  process.env.GEMINI_API_KEY_2,
+  process.env.GEMINI_API_KEY_3
+].filter(Boolean)
+
+if (apiKeys.length === 0) {
+  return res.status(500).json({ error: 'Server is missing GEMINI_API_KEY.' })
+}
 
   const { image, question } = req.body || {}
   const parsed = parseDataUrl(image)

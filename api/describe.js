@@ -1,15 +1,12 @@
 // POST /api/describe
 // Body: { image: "data:image/jpeg;base64,...", question?: string }
 //
-// Runs server-side (Vercel serverless function) so the Gemini API key
-// stays out of the browser. Set GEMINI_API_KEY in your Vercel project's
-// environment variables before deploying (same key you generated in
-// Google AI Studio for local dev).
+// Runs server-side (Vercel serverless function) so the Gemini API keys
+// stay out of the browser. Set GEMINI_API_KEY, GEMINI_API_KEY_2, and
+// GEMINI_API_KEY_3 in your Vercel project's environment variables —
+// having multiple keys means the app automatically tries the next one
+// if the current one hits its free-tier rate limit.
 
-// gemini-3-flash-preview is Google's current free-tier, vision-capable
-// model as of August 2026. If your key hits a quota or 404 error, check
-// aistudio.google.com for whichever Flash model is free on your account —
-// swap the string below, nothing else needs to change.
 const MODEL = 'gemini-3-flash-preview'
 
 const DESCRIBE_PROMPT = `Describe this scene concisely for someone who cannot see it, in 2-4 natural spoken sentences.
@@ -33,14 +30,14 @@ export default async function handler(req, res) {
   }
 
   const apiKeys = [
-  process.env.GEMINI_API_KEY,
-  process.env.GEMINI_API_KEY_2,
-  process.env.GEMINI_API_KEY_3
-].filter(Boolean)
+    process.env.GEMINI_API_KEY,
+    process.env.GEMINI_API_KEY_2,
+    process.env.GEMINI_API_KEY_3
+  ].filter(Boolean)
 
-if (apiKeys.length === 0) {
-  return res.status(500).json({ error: 'Server is missing GEMINI_API_KEY.' })
-}
+  if (apiKeys.length === 0) {
+    return res.status(500).json({ error: 'Server is missing GEMINI_API_KEY.' })
+  }
 
   const { image, question } = req.body || {}
   const parsed = parseDataUrl(image)
@@ -51,30 +48,40 @@ if (apiKeys.length === 0) {
   const promptText = question ? followupPrompt(question) : DESCRIBE_PROMPT
 
   try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-goog-api-key': apiKey
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                { inline_data: { mime_type: parsed.mimeType, data: parsed.data } },
-                { text: promptText }
-              ]
-            }
-          ]
-        })
-      }
-    )
+    let response
+    for (const apiKey of apiKeys) {
+      response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': apiKey
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  { inline_data: { mime_type: parsed.mimeType, data: parsed.data } },
+                  { text: promptText }
+                ]
+              }
+            ]
+          })
+        }
+      )
+      if (response.ok) break
+      const errBody = await response.text()
+      console.error('Gemini API error (trying next key if available):', errBody)
+      if (response.status !== 429) break
+    }
 
     if (!response.ok) {
-      const errBody = await response.text()
-      console.error('Gemini API error:', errBody)
+      if (response.status === 429) {
+        return res.status(429).json({
+          error: "SightLine is catching its breath — give it about 30 seconds and try again."
+        })
+      }
       return res.status(502).json({ error: 'SightLine could not reach the model. Try again.' })
     }
 

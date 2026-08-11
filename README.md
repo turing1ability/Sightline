@@ -1,42 +1,52 @@
-# SightLine
+# 👁️ SightLine
 
-**AI eyes for anyone.** Point your camera at the world, tap once, and hear it described out loud — then ask follow-up questions by voice or text, without recapturing.
+### AI eyes for anyone.
 
-<!-- Swap this for a real screenshot or GIF once you have one — repos with a visible hero image get opened far more often than ones that don't. -->
+Point your camera at the world. Tap once. Hear it described out loud — then ask follow-up questions by voice or text, without recapturing. 🎙️✨
+
+<!-- Swap this for a real screenshot or GIF — repos with a visible hero image get opened way more often 👀 -->
 <!-- ![SightLine screenshot](./docs/screenshot.png) -->
+
+**🔗 Live demo:** `<your Vercel URL here>`
+**📽️ Demo video:** `<your video link here>`
 
 ---
 
-## The problem
+## 💡 The problem
 
-Screen readers solved the web for blind and low-vision users. The physical world — a kitchen counter, a bus stop, a handwritten note — never got an equivalent. Dedicated assistive hardware for this exists, but it typically costs $300–600, putting it out of reach for a lot of the people who need it most. Almost everyone already carries a phone with a camera. SightLine turns that phone into the missing layer.
+Screen readers solved the web for blind and low-vision users. The physical world never got an equivalent — a kitchen counter, a bus stop, a handwritten note. Dedicated assistive hardware exists, but it costs **$300–600** 💸, putting it out of reach for a lot of the people who need it most.
 
-## How it works
+Almost everyone already carries a phone with a camera in their pocket. 📱 SightLine turns that phone into the missing layer — for **$0**.
 
-1. Open SightLine and point the camera at anything.
-2. Tap the shutter. The frame is sent to Gemini's vision model, which returns a short, natural-sounding description — safety-relevant details (steps, obstacles, moving vehicles) are prioritized before general layout and objects.
-3. The description is read aloud automatically.
-4. Ask a follow-up question — by voice or by typing — about the same scene, no need to recapture. ("What color is it?" "Is there a step down?" "What does the sign say?")
+## ⚙️ How it works
 
-## Features
+1. 📸 Open SightLine, point the camera at anything
+2. 👆 Tap the shutter — the frame goes to Gemini's vision model
+3. 🔊 A short, spoken-style description reads out loud automatically — safety-relevant stuff (steps, obstacles, moving vehicles) comes first, then layout, then objects
+4. 🗣️ Ask a follow-up — by voice or text — about the same scene, no recapturing needed
 
-- One-tap scene description, spoken automatically
-- Follow-up Q&A on the same frame, by voice or text
-- Safety-first description ordering — hazards before decoration
-- Fully keyboard-navigable with `aria-live` captions, so the interface itself doesn't introduce a second accessibility problem while solving the first one
-- Runs on any phone or laptop with a camera and a browser — no app store, no extra hardware
+## ✨ Features
 
-## Tech stack
+- 🎯 One-tap scene description, spoken automatically
+- 💬 Follow-up Q&A on the same frame, by voice or text
+- 🦺 Safety-first description ordering — hazards before decoration
+- ♿ Fully keyboard-navigable with `aria-live` captions — the interface itself doesn't introduce a second accessibility problem while solving the first one
+- 🔑 Automatic multi-key fallback so a rate limit never breaks a live demo
+- 🌐 Runs on any phone or laptop with a camera and a browser — no app store, no extra hardware
 
-React + Vite, Tailwind CSS, the Web Speech API (`SpeechSynthesis` + `SpeechRecognition`) for voice I/O, the Gemini API (`gemini-3-flash-preview`) for scene understanding, deployed as a Vercel serverless function + static site.
+## 🧱 Tech stack
 
-## Try it
+| Layer | Tech |
+|---|---|
+| Frontend | ⚛️ React + Vite, 🎨 Tailwind CSS |
+| Voice | 🗣️ Web Speech API (`SpeechSynthesis` + `SpeechRecognition`) |
+| AI | 🤖 Gemini API (`gemini-3-flash-preview`) |
+| Backend | ⚡ Vercel serverless function |
+| Hosting | ▲ Vercel, auto-deployed from GitHub |
 
-Live demo: `<your Vercel URL here>`
+## 🚀 Run it locally
 
-## Run it locally
-
-Requires Node.js 18+ and a free [Gemini API key](https://aistudio.google.com) (click "Get API key" — no credit card needed for the free tier).
+Requires Node.js 18+ and a free [Gemini API key](https://aistudio.google.com) — no credit card needed. 🆓
 
 ```bash
 npm install
@@ -46,29 +56,31 @@ npm install -g vercel     # one-time
 vercel dev                # serves the React app AND /api/describe together
 ```
 
-Use `vercel dev`, not plain `npm run dev` — Vite alone won't run the `/api/describe` serverless function, so capture requests will 404. `vercel dev` picks up `.env` automatically.
+⚠️ Use `vercel dev`, not plain `npm run dev` — Vite alone won't run the `/api/describe` function, so captures will 404.
 
-Open the printed URL and allow camera access.
+Open the printed URL and allow camera access. 📷
 
-## Deploying your own copy
+## ☁️ Deploying your own copy
 
-1. Push this repo to GitHub.
-2. Import it at [vercel.com/new](https://vercel.com/new) — Vercel auto-detects Vite, no config changes needed.
-3. In **Project Settings → Environment Variables**, add `GEMINI_API_KEY`.
-4. Deploy.
+1. Push this repo to GitHub
+2. Import it at [vercel.com/new](https://vercel.com/new) — Vercel auto-detects Vite ✅
+3. Add `GEMINI_API_KEY` (and optionally `GEMINI_API_KEY_2` / `_3` for extra rate-limit headroom 🔑🔑🔑) in Project Settings → Environment Variables
+4. Deploy 🚀
 
-## Notes on browser support
+## 🌍 Browser support
 
-Camera access and voice input both require a secure context (HTTPS or `localhost`) — covered automatically once deployed. Voice follow-ups use `webkitSpeechRecognition`, supported on Chrome and Edge; on other browsers the mic button doesn't render and the text box takes over — intentional graceful degradation, not a gap.
+Camera access and voice input need a secure context (HTTPS or `localhost`) — automatic once deployed. Voice follow-ups use `webkitSpeechRecognition`, supported on Chrome/Edge 🟢; other browsers fall back to the text box gracefully rather than breaking. 🛡️
 
-## What's next
+## 🔭 What's next
 
-Ideas not yet built: offline/low-bandwidth mode for a compressed description when signal is poor, a saved-session history so descriptions can be revisited, and multi-language output.
+- 📶 Offline / low-bandwidth mode for compressed descriptions on poor signal
+- 🗂️ Saved session history to revisit past descriptions
+- 🌐 Multi-language output
 
-## Team
+## 👤 Team
 
-Built solo. See `SUBMISSION.md` for the per-hackathon write-up.
+Built solo. 🙌
 
-## License
+## 📄 License
 
 MIT

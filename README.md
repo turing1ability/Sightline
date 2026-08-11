@@ -1,4 +1,4 @@
-# 👁️ SightLine
+#  SightLine
 
 ### AI eyes for anyone.
 
